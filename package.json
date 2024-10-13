@@ -1,5 +1,5 @@
 {
-  "name": "quickblog-frontend",
+  "name": "quickblog-client",
   "version": "1.0.0",
   "private": true,
   "scripts": {
