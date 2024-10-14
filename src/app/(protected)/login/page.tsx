@@ -5,7 +5,6 @@ import { Box, Button, TextField, Typography, IconButton, InputAdornment } from '
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import GoogleIcon from '../../../../public/google.png';
 import Logo from '../../../../public/icon.png';
 import './style.css'; // Import plain CSS file
 
@@ -54,13 +53,6 @@ function Login(): React.ReactElement {
 
       <Button variant="contained" color="primary" size="medium" className="button">
         Login
-      </Button>
-
-      <Typography className="or-text">or</Typography>
-
-      <Button variant="contained" color="primary" size="medium" className="google-button">
-        <Image src={GoogleIcon} alt="google-icon" width={24} style={{ borderRadius: '24px' }} />
-        SignIn with Google
       </Button>
 
       <Link href={'/register'} className="link">

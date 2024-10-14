@@ -1,3 +1,4 @@
+import axiosInstance from './api';
 import { theme } from './theme.config';
 
-export { theme };
+export { theme, axiosInstance };
