@@ -4,6 +4,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { Box, Button, TextField, Typography, IconButton, InputAdornment } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { SyntheticEvent, useState } from 'react';
 import withAuth from '@/components/auth/withAuth';
 import { axiosInstance } from '@/config';
@@ -14,6 +15,7 @@ function Login(): React.ReactElement {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const route = useRouter();
 
   const handleClickShowPassword = (): void => {
     setShowPassword((prev) => !prev);
@@ -25,6 +27,7 @@ function Login(): React.ReactElement {
       password
     });
     localStorage.setItem('token', data.data.token);
+    route.push('/dashboard');
   };
 
   return (

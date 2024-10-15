@@ -1,15 +1,22 @@
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { getToken, verifyToken } from '@/utils';
+import Loading from '../loading/loading';
 
-// Define props for the HOC; adjust as necessary for your application
 type WithAuthProps = {
-  // Add any specific props that the wrapped component might need
-  [key: string]: unknown; // Allow for any additional props
+  [key: string]: unknown;
 };
 
 const publicRoutes = ['/login', '/register', '/reset'];
 const privateRoutes = ['/dashboard', '/insight', '/blog'];
+
+const isPublicRoute = (pathname: string): boolean => {
+  return publicRoutes.some((route) => pathname === route);
+};
+
+const isPrivateRoute = (pathname: string): boolean => {
+  return privateRoutes.some((route) => pathname === route) || pathname.startsWith('/dashboard/');
+};
 
 const withAuth = <P extends WithAuthProps>(
   WrappedComponent: React.ComponentType<P>
@@ -25,37 +32,32 @@ const withAuth = <P extends WithAuthProps>(
 
       // Check if the token is valid
       if (isTokenValid) {
-        // If token is valid
-        if (privateRoutes.includes(pathname)) {
+        if (isPrivateRoute(pathname)) {
           // Allow access to private routes
           setLoading(false);
         } else {
           // If trying to access public routes, redirect to dashboard
-          router.replace('/dashboard');
-          router.refresh();
+          router.push('/dashboard');
         }
       } else {
-        // If token is invalid
-        if (publicRoutes.includes(pathname)) {
+        if (isPublicRoute(pathname)) {
           // Allow access to public routes
           setLoading(false);
         } else {
           // If trying to access private routes, redirect to login
-          router.replace('/login');
-          router.refresh();
+          router.push('/login');
         }
       }
     }, [router, pathname]);
 
     if (loading) {
-      // You can return a loading spinner here while validating the token
-      return <div>Loading...</div>;
+      return <Loading />;
     }
 
     return <WrappedComponent {...(props as P)} />;
   };
 
-  HOC.displayName = `withAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`; // Add display name
+  HOC.displayName = `withAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
 
   return HOC;
 };
