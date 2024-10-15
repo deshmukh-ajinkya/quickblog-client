@@ -22,7 +22,7 @@ import {
 } from 'chart.js';
 import React from 'react';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
-import '../insight/style.css';
+import './style.css';
 
 // Register Chart.js components for creating charts
 ChartJS.register(
