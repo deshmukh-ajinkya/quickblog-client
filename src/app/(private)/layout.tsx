@@ -27,7 +27,7 @@ import './style.css';
 
 // Define the private navigation paths with their titles, icons, and URLs
 const privatePaths = [
-  { title: 'Explore', icon: WindowIcon, url: '/dashboard' },
+  { title: 'Blog', icon: WindowIcon, url: '/dashboard' },
   { title: 'Create', icon: NoteAltIcon, url: '/blog' },
   { title: 'Insight', icon: AssessmentIcon, url: '/insight' }
 ];

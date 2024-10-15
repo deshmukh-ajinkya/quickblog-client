@@ -22,7 +22,7 @@ export default function NotFound(): React.ReactElement {
       </Typography>
       <Button variant="contained">
         <Link
-          href="/"
+          href="/dashboard"
           style={{ textDecoration: 'none', color: 'white', textTransform: 'capitalize' }}>
           Back To Home
         </Link>
