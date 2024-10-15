@@ -1,1 +1,1 @@
-export const protectedPaths = ['/login', '/register', '/reset'];
+export const publicPaths = ['/login', '/register', '/reset'];
