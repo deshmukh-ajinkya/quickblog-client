@@ -5,6 +5,7 @@ import { Box, Button, TextField, Typography, IconButton, InputAdornment } from '
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import withAuth from '@/components/auth/withAuth';
 import Logo from '../../../../public/icon.png';
 import './style.css'; // Import the plain CSS file
 
@@ -83,4 +84,4 @@ function Register(): React.ReactElement {
   );
 }
 
-export default Register;
+export default withAuth(Register);

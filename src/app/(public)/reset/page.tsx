@@ -3,6 +3,7 @@ import { Box, Button, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import withAuth from '@/components/auth/withAuth';
 import Logo from '../../../../public/icon.png';
 import './style.css'; // Import the plain CSS file
 
@@ -106,4 +107,4 @@ function Reset(): React.ReactElement {
   );
 }
 
-export default Reset;
+export default withAuth(Reset);

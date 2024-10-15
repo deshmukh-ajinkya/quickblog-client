@@ -1,3 +1,3 @@
-import { checkRoutePaths } from './middleware.utils';
+import { getToken, verifyToken } from './auth';
 
-export { checkRoutePaths };
+export { verifyToken, getToken };

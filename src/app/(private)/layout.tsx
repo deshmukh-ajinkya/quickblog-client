@@ -20,6 +20,7 @@ import Image, { StaticImageData } from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { BaseSyntheticEvent, ChangeEvent, useRef, useState } from 'react';
 import { CustomTheme } from '@/components';
+import withAuth from '@/components/auth/withAuth';
 import { INavigationItem } from '@/interface';
 import Logo from '../../../public/icon.png';
 import User from '../../../public/user.png';
@@ -240,4 +241,4 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
   );
 }
 
-export default Private;
+export default withAuth(Private);

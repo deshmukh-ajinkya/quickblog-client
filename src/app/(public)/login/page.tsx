@@ -5,6 +5,7 @@ import { Box, Button, TextField, Typography, IconButton, InputAdornment } from '
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { SyntheticEvent, useState } from 'react';
+import withAuth from '@/components/auth/withAuth';
 import { axiosInstance } from '@/config';
 import Logo from '../../../../public/icon.png';
 import './style.css'; // Import plain CSS file
@@ -19,10 +20,11 @@ function Login(): React.ReactElement {
   };
   const handleLogin = async (e: SyntheticEvent): Promise<void> => {
     e.preventDefault();
-    await axiosInstance.post('/login', {
+    const data = await axiosInstance.post('/login', {
       email,
       password
     });
+    localStorage.setItem('token', data.data.token);
   };
 
   return (
@@ -80,4 +82,4 @@ function Login(): React.ReactElement {
   );
 }
 
-export default Login;
+export default withAuth(Login);
