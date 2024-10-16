@@ -10,7 +10,10 @@ import Like from '../../../../public/thumbs-up.svg';
 import './style.css';
 
 interface Blog {
-  author: string;
+  author: {
+    _id: string;
+    name: string;
+  };
   title: string;
   content: string;
   image: string;
@@ -89,9 +92,7 @@ function Dashboard(): React.ReactNode {
               <AccountCircleIcon color="secondary" className="dashboard-user-info-icon" />
 
               {/* User name */}
-              <Typography className="dashboard-user-info-title">
-                {blogData.author.toString()}
-              </Typography>
+              <Typography className="dashboard-user-info-title">{blogData.author.name}</Typography>
             </Box>
 
             {/* Container for blog post likes */}
