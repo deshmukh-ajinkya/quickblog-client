@@ -1,7 +1,7 @@
 'use client';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { Box, Button, TextField, Typography, IconButton, InputAdornment } from '@mui/material';
+import { Box, Button, TextField, IconButton, InputAdornment } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -42,7 +42,6 @@ function Login(): React.ReactElement {
           onChange={(e) => setEmail(e.target.value)}
           fullWidth
         />
-        <Typography className="validation-message">Validation message</Typography>
       </Box>
 
       <Box className="input-container">
@@ -67,7 +66,6 @@ function Login(): React.ReactElement {
             )
           }}
         />
-        <Typography className="validation-message">Validation Message</Typography>
       </Box>
 
       <Link href={'/reset'} className="link">
