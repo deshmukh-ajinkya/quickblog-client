@@ -28,11 +28,11 @@
 
 .dashboard-blog-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, auto));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 200px));
   gap: 1rem;
   grid-column: span 2;
   height: min-content;
-  justify-content: center;
+  justify-content: left;
 }
 
 .dashboard-blog-card-wrapper {
@@ -120,6 +120,7 @@
   }
   .dashboard-blog-container {
     grid-template-columns: repeat(auto-fit, minmax(150px, auto));
+    justify-content: center;
   }
   .dashboard-blog-user-info {
     gap: 0.2rem;
