@@ -9,7 +9,7 @@ import React, { SyntheticEvent, useState } from 'react';
 import withAuth from '@/components/auth/withAuth';
 import { axiosInstance } from '@/config';
 import Logo from '../../../../public/icon.png';
-import './style.css'; // Import plain CSS file
+import './style.css';
 
 function Login(): React.ReactElement {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,17 +17,17 @@ function Login(): React.ReactElement {
   const [password, setPassword] = useState('');
   const route = useRouter();
 
-  const handleClickShowPassword = (): void => {
-    setShowPassword((prev) => !prev);
-  };
   const handleLogin = async (e: SyntheticEvent): Promise<void> => {
     e.preventDefault();
     const data = await axiosInstance.post('/login', {
       email,
       password
     });
-    localStorage.setItem('token', data.data.token);
-    route.push('/dashboard');
+    const storedToken = data.data.token;
+    if (storedToken) {
+      localStorage.setItem('token', data.data.token);
+      route.push('/dashboard');
+    }
   };
 
   return (
@@ -55,7 +55,7 @@ function Login(): React.ReactElement {
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton onClick={handleClickShowPassword} edge="end">
+                <IconButton onClick={() => setShowPassword((prev) => !prev)} edge="end">
                   {showPassword ? (
                     <VisibilityOffIcon fontSize="small" />
                   ) : (
