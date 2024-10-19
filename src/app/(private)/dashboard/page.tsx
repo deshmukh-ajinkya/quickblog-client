@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { axiosInstance } from '@/config';
-import ReactIMG from '../../../../public/react.png';
 import Like from '../../../../public/thumbs-up.svg';
 import './style.css';
 
@@ -16,7 +15,7 @@ interface Blog {
   };
   title: string;
   content: string;
-  image: string;
+  bannerImg: string;
   likesCount: number;
 }
 
@@ -72,7 +71,7 @@ function Dashboard(): React.ReactNode {
           >
             {/* Blog post image */}
             <Image
-              src={ReactIMG}
+              src={blogData.bannerImg}
               alt="Banner"
               width={400}
               height={200}

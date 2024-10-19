@@ -1,9 +1,11 @@
+'use client';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, MenuItem, Select, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
-import React from 'react';
+import React, { useState } from 'react';
+import { axiosInstance } from '@/config';
 import { blogData } from '@/mock/blogData';
 import ReactImg from '../../../../public/react.png';
 import Like from '../../../../public/thumbs-up.svg';
@@ -11,49 +13,107 @@ import './style.css';
 
 // Main Blog component
 function Blog(): React.ReactElement {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [, setBannerImg] = useState<File | null>(null);
+  const [bannerImgBase64, setBannerImgBase64] = useState<string | null>(null);
+  const [category, setCategory] = useState('');
+
+  // Handle file change
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    if (event.target.files) {
+      const file = event.target.files[0];
+      setBannerImg(file);
+
+      // Convert the file to Base64
+      const reader = new FileReader();
+      reader.onloadend = (): void => {
+        const base64String = reader.result as string;
+        setBannerImgBase64(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Handle blog creation
+  const handleCreateBlog = async (): Promise<void> => {
+    const formData = new FormData();
+    formData.append('author', '671308f18e4ff2f76d09a05b');
+    formData.append('title', title);
+    formData.append('content', content);
+    formData.append('bannerImg', bannerImgBase64 || ''); // Use Base64 string directly
+    formData.append('category', category);
+
+    await axiosInstance.post('/create_blog', formData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    // Optionally, reset form fields after successful submission
+    resetForm();
+  };
+
+  // Function to reset form fields
+  const resetForm = (): void => {
+    setTitle('');
+    setContent('');
+    setBannerImg(null);
+    setBannerImgBase64(null);
+    setCategory('');
+  };
+
   return (
     <Box className="blog-root-container">
-      {/* Container for icons and select dropdown */}
       <Box className="blog-grid-container">
-        {/* Icon for adding a new blog */}
         <Box className="blog-icon-container">
           <AddBoxIcon color="primary" />
         </Box>
         <Box className="blog-select-container">
-          {/* Dropdown to select blog category */}
           <Box>
             <Select
               name="select-category"
               size="small"
-              defaultValue={1}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
               className="blog-select"
               fullWidth>
-              <MenuItem value={1}>Select Category</MenuItem>
-              <MenuItem value={2}>Technology</MenuItem>
+              <MenuItem value="">Select Category</MenuItem>
+              <MenuItem value="technology">Technology</MenuItem>
+              <MenuItem value="lifestyle">Lifestyle</MenuItem>
             </Select>
           </Box>
-          {/* Icons for additional actions */}
           <Box className="blog-actions">
-            <AddBoxIcon color="primary" />
+            <AddBoxIcon color="primary" onClick={handleCreateBlog} />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              style={{ marginBottom: '16px' }}
+            />
             <DeleteIcon color="primary" />
           </Box>
         </Box>
       </Box>
-      <TextField fullWidth variant="outlined" placeholder="Blog Title" className="blog-heading" />
-      {/* Text field for entering blog content */}
+      <TextField
+        fullWidth
+        variant="outlined"
+        placeholder="Blog Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="blog-heading"
+      />
       <TextField
         fullWidth
         variant="outlined"
         multiline
         placeholder="Blog Content"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
         className="blog-textfield"
       />
-
-      {/* Container for displaying list of blogs */}
       <Box className="blog-content-container">
         {blogData.map((blog, id) => (
           <Box key={id} className="blog-content-box">
-            {/* Image representing the blog */}
             <Image src={ReactImg} alt="Banner" className="blog-image" />
             <Typography color="primary" className="blog-user-info-text">
               {blog.title}
@@ -62,14 +122,12 @@ function Blog(): React.ReactElement {
               {blog.description}
             </Typography>
             <Box className="blog-info">
-              {/* Section displaying the user info */}
               <Box className="blog-user-info">
                 <AccountCircleIcon color="secondary" className="blog-user-info-icon" />
                 <Typography color="primary" className="blog-user-info-text">
                   {blog.user.name}
                 </Typography>
               </Box>
-              {/* Section displaying the likes */}
               <Box className="blog-like-info">
                 <Image src={Like} alt="like" width={20} className="blog-user-like-icon" />
                 <Typography color="primary" className="blog-user-info-text">
