@@ -50,6 +50,11 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
     return initialSelected?.title || 'Explore';
   });
 
+  const handleLogout = (): void => {
+    localStorage.removeItem('token');
+    router.push('/login'); // Redirect to the login page or any other route
+  };
+
   // Handle navigation item click
   const handleNavigation = React.useCallback(
     (item: INavigationItem): void => {
@@ -215,7 +220,7 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
         </MenuItem>
 
         {/* Logout option */}
-        <MenuItem>
+        <MenuItem onClick={handleLogout}>
           <Typography className="logout-item">Logout</Typography>
         </MenuItem>
       </Menu>

@@ -4,7 +4,7 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, MenuItem, Select, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { axiosInstance } from '@/config';
 import { blogData } from '@/mock/blogData';
 import ReactImg from '../../../../public/react.png';
@@ -17,7 +17,10 @@ function Blog(): React.ReactElement {
   const [content, setContent] = useState('');
   const [, setBannerImg] = useState<File | null>(null);
   const [bannerImgBase64, setBannerImgBase64] = useState<string | null>(null);
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState('select');
+
+  // Ref for the hidden file input
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Handle file change
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -37,12 +40,13 @@ function Blog(): React.ReactElement {
 
   // Handle blog creation
   const handleCreateBlog = async (): Promise<void> => {
-    const formData = new FormData();
-    formData.append('author', '671308f18e4ff2f76d09a05b');
-    formData.append('title', title);
-    formData.append('content', content);
-    formData.append('bannerImg', bannerImgBase64 || ''); // Use Base64 string directly
-    formData.append('category', category);
+    const formData = {
+      author: '67139348a0402eab8e8afe8c',
+      title,
+      content,
+      bannerImg: bannerImgBase64,
+      category
+    };
 
     await axiosInstance.post('/create_blog', formData, {
       headers: {
@@ -62,11 +66,40 @@ function Blog(): React.ReactElement {
     setCategory('');
   };
 
+  // Function to trigger the hidden file input when the AddBoxIcon is clicked
+  const handleIconClick = (): void => {
+    fileInputRef.current?.click();
+  };
+
+  const handleDeleteBlog = async (): Promise<void> => {
+    const formData = {
+      author: '67139348a0402eab8e8afe8c',
+      blogId: '67133e1fa67f930bb6497fe8'
+    };
+
+    await axiosInstance.delete('/delete_blog', {
+      data: formData,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+  };
+
   return (
     <Box className="blog-root-container">
       <Box className="blog-grid-container">
-        <Box className="blog-icon-container">
-          <AddBoxIcon color="primary" />
+        <Box className="blog-icon-container" onClick={handleIconClick}>
+          {bannerImgBase64 ? (
+            <Image
+              src={bannerImgBase64}
+              alt="Selected banner"
+              className="blog-banner-preview"
+              width={150}
+              height={100}
+            />
+          ) : (
+            <AddBoxIcon color="primary" />
+          )}
         </Box>
         <Box className="blog-select-container">
           <Box>
@@ -77,25 +110,20 @@ function Blog(): React.ReactElement {
               onChange={(e) => setCategory(e.target.value)}
               className="blog-select"
               fullWidth>
-              <MenuItem value="">Select Category</MenuItem>
+              <MenuItem value="select">Select Category</MenuItem>
               <MenuItem value="technology">Technology</MenuItem>
-              <MenuItem value="lifestyle">Lifestyle</MenuItem>
+              <MenuItem value="news">News</MenuItem>
             </Select>
           </Box>
           <Box className="blog-actions">
             <AddBoxIcon color="primary" onClick={handleCreateBlog} />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              style={{ marginBottom: '16px' }}
-            />
-            <DeleteIcon color="primary" />
+            <DeleteIcon color="primary" onClick={handleDeleteBlog} />
           </Box>
         </Box>
       </Box>
       <TextField
         fullWidth
+        size="small"
         variant="outlined"
         placeholder="Blog Title"
         value={title}
@@ -104,6 +132,7 @@ function Blog(): React.ReactElement {
       />
       <TextField
         fullWidth
+        size="small"
         variant="outlined"
         multiline
         placeholder="Blog Content"
@@ -138,6 +167,15 @@ function Blog(): React.ReactElement {
           </Box>
         ))}
       </Box>
+
+      {/* Hidden file input */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        ref={fileInputRef}
+        style={{ display: 'none' }} // Hidden input
+      />
     </Box>
   );
 }
