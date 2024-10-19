@@ -74,7 +74,7 @@ function Blog(): React.ReactElement {
   const handleDeleteBlog = async (): Promise<void> => {
     const formData = {
       author: '67139348a0402eab8e8afe8c',
-      blogId: '67133e1fa67f930bb6497fe8'
+      blogId: '6713990fa0402eab8e8afee5'
     };
 
     await axiosInstance.delete('/delete_blog', {

@@ -21,6 +21,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import React, { BaseSyntheticEvent, ChangeEvent, useRef, useState } from 'react';
 import { CustomTheme } from '@/components';
 import withAuth from '@/components/auth/withAuth';
+import { axiosInstance } from '@/config';
 import { INavigationItem } from '@/interface';
 import Logo from '../../../public/icon.png';
 import User from '../../../public/user.png';
@@ -87,6 +88,7 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
   // Toggle between editing and viewing mode for profile fields
   const toggleEditMode = (field: 'email' | 'name'): void => {
     setIsEditing((prev) => ({ ...prev, [field]: !prev[field] }));
+    handleUpdateProfile();
   };
 
   const theme = useTheme(); // Get the current theme for responsive design
@@ -105,6 +107,22 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
       const imageUrl = URL.createObjectURL(file); // Create a preview URL
       setImagePreview(imageUrl); // Update the image source with the new file    }
     }
+  };
+
+  const handleUpdateProfile = async (): Promise<void> => {
+    await axiosInstance.post(
+      '/update_profile',
+      {
+        userId: '67139348a0402eab8e8afe8c',
+        email,
+        name
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    );
   };
   return (
     <Box className="private-root-container">
