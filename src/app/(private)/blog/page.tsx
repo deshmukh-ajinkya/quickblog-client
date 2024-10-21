@@ -1,7 +1,9 @@
 'use client';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, MenuItem, Select, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
 import React, { useRef, useState } from 'react';
@@ -115,8 +117,12 @@ function Blog(): React.ReactElement {
               <MenuItem value="news">News</MenuItem>
             </Select>
           </Box>
+          <Box className="validation-msg">
+            <Typography color="primary">added successful</Typography>
+          </Box>
           <Box className="blog-actions">
             <AddBoxIcon color="primary" onClick={handleCreateBlog} />
+            <ChangeCircleIcon color="primary" />
             <DeleteIcon color="primary" onClick={handleDeleteBlog} />
           </Box>
         </Box>
@@ -162,6 +168,7 @@ function Blog(): React.ReactElement {
                 <Typography color="primary" className="blog-user-info-text">
                   {blog.user.likes}
                 </Typography>
+                <OpenInNewIcon color="primary" fontSize="small" />
               </Box>
             </Box>
           </Box>

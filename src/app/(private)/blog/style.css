@@ -64,7 +64,13 @@
 
 .blog-actions {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+}
+
+.validation-msg {
+  height: 36px;
+  justify-self: right;
+  align-content: center;
 }
 
 .blog-textfield {
