@@ -31,21 +31,21 @@ const withAuth = <P extends WithAuthProps>(
       const isTokenValid = token && verifyToken(token);
 
       // Check if the token is valid
-      if (isTokenValid) {
-        if (isPrivateRoute(pathname)) {
-          // Allow access to private routes
-          setLoading(false);
-        } else {
-          // If trying to access public routes, redirect to dashboard
-          router.push('/dashboard');
-        }
-      } else {
+      if (!isTokenValid) {
         if (isPublicRoute(pathname)) {
           // Allow access to public routes
           setLoading(false);
         } else {
           // If trying to access private routes, redirect to login
           router.push('/login');
+        }
+      } else {
+        if (isPrivateRoute(pathname)) {
+          // Allow access to private routes
+          setLoading(false);
+        } else {
+          // If trying to access public routes, redirect to dashboard
+          router.push('/dashboard');
         }
       }
     }, [router, pathname]);
