@@ -163,6 +163,10 @@
   }
 }
 
+.blog-user-like-icon {
+  width: 20px;
+}
+
 @media (width <= 900px) {
   .blog-root-container {
     grid-template-columns: 1fr;

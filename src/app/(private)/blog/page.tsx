@@ -7,10 +7,11 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, MenuItem, Select, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
 import React, { useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { axiosInstance } from '@/config';
-import { blogData } from '@/mock/blogData';
-import ReactImg from '../../../../public/react.png';
-import Like from '../../../../public/thumbs-up.svg';
+import { IBlog } from '@/interface/IBlog.interface';
+import { RootState } from '@/store/store';
+import Like from '../../../../public/thumbs-up.png';
 import './style.css';
 
 // Main Blog component
@@ -20,9 +21,14 @@ function Blog(): React.ReactElement {
   const [, setBannerImg] = useState<File | null>(null);
   const [bannerImgBase64, setBannerImgBase64] = useState<string | null>(null);
   const [category, setCategory] = useState('select');
-
-  // Ref for the hidden file input
+  const userId = useSelector((state: RootState) => state.blog.userId);
+  const allBlogs = useSelector((state: RootState) => state.blog.blogs);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Filter blogs to show only those authored by the current user
+  const filterOwnBlogs = (): IBlog[] => {
+    return allBlogs.filter((blog) => blog.author._id === userId);
+  };
 
   // Handle file change
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
@@ -43,7 +49,7 @@ function Blog(): React.ReactElement {
   // Handle blog creation
   const handleCreateBlog = async (): Promise<void> => {
     const formData = {
-      author: '67139348a0402eab8e8afe8c',
+      author: userId,
       title,
       content,
       bannerImg: bannerImgBase64,
@@ -55,7 +61,6 @@ function Blog(): React.ReactElement {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
-    // Optionally, reset form fields after successful submission
     resetForm();
   };
 
@@ -75,7 +80,7 @@ function Blog(): React.ReactElement {
 
   const handleDeleteBlog = async (): Promise<void> => {
     const formData = {
-      author: '67139348a0402eab8e8afe8c',
+      author: userId,
       blogId: '6713990fa0402eab8e8afee5'
     };
 
@@ -147,26 +152,26 @@ function Blog(): React.ReactElement {
         className="blog-textfield"
       />
       <Box className="blog-content-container">
-        {blogData.map((blog, id) => (
+        {filterOwnBlogs().map((blog, id) => (
           <Box key={id} className="blog-content-box">
-            <Image src={ReactImg} alt="Banner" className="blog-image" />
+            <Box component="img" src={blog.bannerImg} alt="Banner" className="blog-image" />
             <Typography color="primary" className="blog-user-info-text">
               {blog.title}
             </Typography>
             <Typography color="primary" className="blog-user-info-description">
-              {blog.description}
+              {blog.content}
             </Typography>
             <Box className="blog-info">
               <Box className="blog-user-info">
                 <AccountCircleIcon color="secondary" className="blog-user-info-icon" />
                 <Typography color="primary" className="blog-user-info-text">
-                  {blog.user.name}
+                  {blog.author.name}
                 </Typography>
               </Box>
               <Box className="blog-like-info">
-                <Image src={Like} alt="like" width={20} className="blog-user-like-icon" />
+                <Box component="img" src={Like.src} alt="like" className="blog-user-like-icon" />
                 <Typography color="primary" className="blog-user-info-text">
-                  {blog.user.likes}
+                  {blog.likesCount}
                 </Typography>
                 <OpenInNewIcon color="primary" fontSize="small" />
               </Box>
@@ -175,13 +180,12 @@ function Blog(): React.ReactElement {
         ))}
       </Box>
 
-      {/* Hidden file input */}
       <input
         type="file"
         accept="image/*"
         onChange={handleFileChange}
         ref={fileInputRef}
-        style={{ display: 'none' }} // Hidden input
+        style={{ display: 'none' }}
       />
     </Box>
   );

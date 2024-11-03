@@ -1,15 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IBlog } from '@/interface/IBlog.interface';
 import { initialState } from '../initialState';
 
 const blogSlice = createSlice({
   name: 'blog',
-  initialState: initialState.blogs, // Assume initialState.blogs is an empty array or initial value
+  initialState: initialState,
   reducers: {
-    setBlogs: (state, action: PayloadAction) => {
-      return action.payload; // Replace the current state with the new blog data
+    setBlogs: (state, action: PayloadAction<IBlog[]>) => {
+      state.blogs = action.payload;
+    },
+    setUserId: (state, action: PayloadAction<string | null>) => {
+      state.userId = action.payload;
     }
   }
 });
 
-export const { setBlogs } = blogSlice.actions;
+export const { setBlogs, setUserId } = blogSlice.actions;
 export default blogSlice.reducer;

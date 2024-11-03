@@ -4,7 +4,9 @@ import { Box, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/mater
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { axiosInstance } from '@/config';
+import { setBlogs } from '@/store/slice/blogSlice';
 import Like from '../../../../public/thumbs-up.svg';
 import './style.css';
 
@@ -23,6 +25,7 @@ function Dashboard(): React.ReactNode {
   // State variable to store the selected category (initially set to 1)
   const [category, setCategory] = React.useState<number>(1);
   const [blog, setBlog] = useState<Blog[]>([]);
+  const dispatch = useDispatch();
   // Function to handle changes in the category selection dropdown
   const handleChange = (event: SelectChangeEvent): void => {
     setCategory(Number(event.target.value)); // Update state with the selected value converted to a number
@@ -40,11 +43,12 @@ function Dashboard(): React.ReactNode {
       }
     );
     setBlog(data);
+    dispatch(setBlogs(data)); // Dispatch with extracted userId
   };
 
   useEffect(() => {
     handleGetBlog();
-  }, []);
+  });
 
   // Render the dashboard content
   return (

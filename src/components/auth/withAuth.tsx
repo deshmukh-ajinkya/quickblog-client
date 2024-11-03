@@ -1,5 +1,8 @@
+import { JwtPayload } from 'jsonwebtoken';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setUserId } from '@/store/slice/blogSlice';
 import { getToken, verifyToken } from '@/utils';
 import Loading from '../loading/loading';
 
@@ -25,10 +28,13 @@ const withAuth = <P extends WithAuthProps>(
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const pathname = usePathname();
+    const dispatch = useDispatch();
 
     useEffect(() => {
       const token = getToken();
       const isTokenValid = token && verifyToken(token);
+
+      dispatch(setUserId((isTokenValid as JwtPayload)?.userId));
 
       // Check if the token is valid
       if (!isTokenValid) {
@@ -48,7 +54,7 @@ const withAuth = <P extends WithAuthProps>(
           router.push('/dashboard');
         }
       }
-    }, [router, pathname]);
+    }, [router, pathname, dispatch]);
 
     if (loading) {
       return <Loading />;
