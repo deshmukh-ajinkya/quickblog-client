@@ -19,7 +19,6 @@ import {
 import Image, { StaticImageData } from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { BaseSyntheticEvent, ChangeEvent, useRef, useState } from 'react';
-import { CustomTheme } from '@/components';
 import withAuth from '@/components/auth/withAuth';
 import { axiosInstance } from '@/config';
 import { INavigationItem } from '@/interface';
@@ -145,7 +144,6 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
 
       {/* Header icons including theme switcher and user profile icon */}
       <Box className="header-icons">
-        <CustomTheme />
         <Image
           src={imagePreview}
           width={200}

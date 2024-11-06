@@ -65,6 +65,7 @@
 .dashboard-blog-title {
   grid-row: 2;
   grid-column: span 2;
+  text-transform: capitalize;
 }
 .dashboard-blog-description {
   grid-row: 3;
