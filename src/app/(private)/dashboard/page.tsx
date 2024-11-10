@@ -3,7 +3,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Box, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { axiosInstance } from '@/config';
 import { setBlogs } from '@/store/slice/blogSlice';
@@ -31,7 +31,7 @@ function Dashboard(): React.ReactNode {
     setCategory(Number(event.target.value)); // Update state with the selected value converted to a number
   };
 
-  const handleGetBlog = async (): Promise<void> => {
+  const handleGetBlog = useCallback(async (): Promise<void> => {
     const token = localStorage.getItem('token');
     const { data } = await axiosInstance.post(
       '/get_all_blog',
@@ -46,7 +46,7 @@ function Dashboard(): React.ReactNode {
     );
     setBlog(data);
     dispatch(setBlogs(data));
-  };
+  }, [dispatch]);
 
   useEffect(() => {
     handleGetBlog();

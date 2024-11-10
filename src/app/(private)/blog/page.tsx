@@ -6,7 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, MenuItem, Select, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { axiosInstance } from '@/config';
 import { IBlog } from '@/interface/IBlog.interface';
@@ -26,7 +26,7 @@ function Blog(): React.ReactElement {
   const [blogId, setBlogId] = useState<string | null | undefined>(''); // Blog ID to be used for update/delete
   const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success message
 
-  const getOwnBlogs = async (): Promise<void> => {
+  const getOwnBlogs = useCallback(async (): Promise<void> => {
     const token = localStorage.getItem('token');
     const { data } = await axiosInstance.post<IBlog[]>(
       '/get_all_blog',
@@ -36,7 +36,7 @@ function Blog(): React.ReactElement {
       }
     );
     setOwnBlogs(data);
-  };
+  }, [userId]); // Add userId as a dependency to ensure it updates when userId changes
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     if (event.target.files) {
