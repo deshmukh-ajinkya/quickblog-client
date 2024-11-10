@@ -61,17 +61,12 @@
   flex-grow: 1;
 }
 
-.sender-comment {
+.user-comment {
   display: flex;
   align-items: center;
 }
 
-.receiver-comment {
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
-}
-.sender-text {
+.user-text {
   &.MuiTypography-root {
     font-size: 0.5rem;
     padding: 0;
@@ -79,14 +74,14 @@
   }
 }
 
-.sender-name-text {
+.user-name-text {
   &.MuiTypography-root {
     font-size: 0.5rem;
     padding: 0;
   }
 }
 
-.sender-comment-info {
+.user-comment-info {
   text-align: center;
   line-height: 0;
 }

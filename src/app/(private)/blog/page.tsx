@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, MenuItem, Select, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { axiosInstance } from '@/config';
@@ -25,6 +26,7 @@ function Blog(): React.ReactElement {
   const [ownBlogs, setOwnBlogs] = useState<IBlog[]>([]);
   const [blogId, setBlogId] = useState<string | null | undefined>(''); // Blog ID to be used for update/delete
   const [validation, setValidation] = useState<string | null>(null); // State for success message
+  const router = useRouter();
 
   const getOwnBlogs = useCallback(async (): Promise<void> => {
     const token = localStorage.getItem('token');
@@ -260,7 +262,13 @@ function Blog(): React.ReactElement {
                 <Typography color="primary" className="blog-user-info-text">
                   {blog.likesCount}
                 </Typography>
-                <OpenInNewIcon color="primary" fontSize="small" />
+                <OpenInNewIcon
+                  color="primary"
+                  fontSize="small"
+                  onClick={() => {
+                    router.push(`/dashboard/${blog.title.toLocaleLowerCase()}`);
+                  }}
+                />
               </Box>
             </Box>
           </Box>

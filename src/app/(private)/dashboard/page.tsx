@@ -6,7 +6,7 @@ import Link from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { axiosInstance } from '@/config';
-import { setBlogs } from '@/store/slice/blogSlice';
+import { setBlogId, setBlogs } from '@/store/slice/blogSlice';
 import Like from '../../../../public/thumbs-up.svg';
 import './style.css';
 
@@ -19,6 +19,7 @@ interface Blog {
   content: string;
   bannerImg: string;
   likesCount: number;
+  id: number;
 }
 
 function Dashboard(): React.ReactNode {
@@ -68,13 +69,15 @@ function Dashboard(): React.ReactNode {
 
       {/* Container for blog posts */}
       <Box className="dashboard-blog-container">
-        {/* Loop through the first 10 blog posts from mock data */}
+        {/* blog posts */}
         {blog.map((blogData, index) => (
           <Link
             className="dashboard-blog-card-wrapper"
             key={index} // Set a unique key for each blog post
-            href={`/dashboard/${encodeURIComponent(blogData.title.toLowerCase().replace(/\s+/g, '-'))}`} // Generate a dynamic URL based on blog title
-          >
+            href={`/dashboard/${blogData.title.toLocaleLowerCase()}`}
+            onClick={() => {
+              dispatch(setBlogId(String(blogData.id)));
+            }}>
             {/* Blog post image */}
             <Image
               src={blogData.bannerImg}

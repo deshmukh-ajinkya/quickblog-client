@@ -3,59 +3,121 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import QuickreplyIcon from '@mui/icons-material/Quickreply';
 import SendIcon from '@mui/icons-material/Send';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
-import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
 import { Box, InputAdornment, TextField, Typography } from '@mui/material';
 import { useParams } from 'next/navigation';
-import React, { useEffect, useRef } from 'react';
-import { blogData } from '@/mock/blogData';
+import React, { useEffect, useRef, useState } from 'react';
 import './style.css';
+import { useSelector } from 'react-redux';
+import { axiosInstance } from '@/config';
+import { RootState } from '@/store/store';
 
-// Functional component for displaying blog details
+interface Comment {
+  authorID: {
+    name: string;
+  };
+  content: string;
+}
+
 const BlogDetail: React.FC = () => {
-  // Extracting slug parameter from URL
   const { slug } = useParams();
-
-  // State variables for managing like status, comment input, and comments
-  const [liked, setLiked] = React.useState(false);
-  const [comment, setComment] = React.useState('');
-  const [comments, setComments] = React.useState<{ sender: string; text: string }[]>([]);
-
-  // Ref to scroll to the end of the comments section
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [comment, setComment] = useState('');
+  const [comments, setComments] = useState<Comment[]>([]); // Comment data (authorID, content)
+  const blogData = useSelector((state: RootState) => state.blog.blogs);
+  const blogID = useSelector((state: RootState) => state.blog.blogId);
+  const userID = useSelector((state: RootState) => state.blog.userId);
   const commentsEndRef = useRef<HTMLDivElement>(null);
 
-  // Finding the blog data based on the slug
-  const data = blogData.find((blog) => blog.title.toLowerCase().replace(/\s+/g, '-') === slug);
+  const data = blogData.find((blog) => blog.title.toLowerCase() === slug);
 
-  // Scroll to the end of the comments section when a new comment is added
+  // Fetch blog data and initialize like state
+  useEffect(() => {
+    if (data) {
+      setLiked(data.author._id.includes(userID as string));
+      setLikeCount(data.likesCount);
+    }
+  }, [data, userID]);
+
+  // Fetch comments when the component mounts
+  useEffect(() => {
+    const fetchComments = async (): Promise<void> => {
+      const token = localStorage.getItem('token');
+
+      const response = await axiosInstance.post(
+        '/get_comment',
+        { blogID },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setComments(response.data); // Update comments state
+    };
+
+    if (blogID) {
+      fetchComments();
+    }
+  }, [blogID]);
+
+  // Scroll to the latest comment when comments change
   useEffect(() => {
     if (commentsEndRef.current) {
       commentsEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [comments]);
 
-  // Return a message if the blog is not found
   if (!data) {
     return <Typography variant="h4">Blog not found</Typography>;
   }
 
-  // Function to handle sending a comment
-  const handleSendComment = (): void => {
-    if (comment.trim()) {
-      // Add the new comment to the list of comments
-      setComments((prevComments) => [...prevComments, { sender: 'You', text: comment }]);
-      setComment('');
+  // Handle like functionality
+  const handleLike = async (): Promise<void> => {
+    const token = localStorage.getItem('token');
+    const response = await axiosInstance.put(
+      '/like_blog',
+      { blogId: blogID, userId: userID },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
 
-      // Simulate receiving a reply after a delay
-      setTimeout(() => {
-        setComments((prevComments) => [
-          ...prevComments,
-          { sender: 'Alice', text: 'Receiver Comments Here' }
-        ]);
-      }, 1000);
+    setLiked(response.data.userLiked);
+    setLikeCount(response.data.likeCount);
+  };
+
+  // Handle sending a new comment
+  const handleSendComment = async (): Promise<void> => {
+    if (comment.trim()) {
+      const token = localStorage.getItem('token');
+
+      await axiosInstance.post(
+        '/add_comment',
+        {
+          blogID,
+          authorID: userID,
+          content: comment
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      setComments((prevComments) => [
+        ...prevComments,
+        { authorID: { name: 'You' }, content: comment }
+      ]);
+      setComment('');
     }
   };
 
-  // Function to handle 'Enter' key press for sending comments
+  // Handle sending the comment on 'Enter' key press
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     if (event.key === 'Enter') {
       handleSendComment();
@@ -66,29 +128,25 @@ const BlogDetail: React.FC = () => {
     <Box className="blog-content-root-container">
       <Typography className="blog-content-title" variant="h6">
         {data.title}
-        <Box className="blog-content-like" onClick={() => setLiked(!liked)}>
-          <Typography>{data.user.likes}</Typography>
-          {liked ? <ThumbUpAltIcon fontSize="small" /> : <ThumbUpOutlinedIcon fontSize="small" />}
+        <Box className="blog-content-like" onClick={handleLike}>
+          <Typography>{likeCount}</Typography>
+          {liked ? <ThumbUpAltIcon fontSize="small" /> : <ThumbUpAltIcon fontSize="small" />}
         </Box>
       </Typography>
       <Typography className="blog-content-description" variant="h6">
-        {data.description}
+        {data.content}
       </Typography>
       <Box className="blog-content-comment">
         <Box className="comments">
-          {/* Displaying each comment */}
           {comments.map((msg, index) => (
-            <Box
-              key={index}
-              className={msg.sender === 'You' ? 'sender-comment' : 'receiver-comment'}>
-              <Box className="sender-comment-info">
+            <Box key={index} className="user-comment">
+              <Box className="user-comment-info">
                 <AccountCircleIcon color="secondary" fontSize="small" />
-                <Typography className="sender-name-text">{msg.sender}</Typography>
+                <Typography className="user-name-text">{msg.authorID?.name}</Typography>
               </Box>
-              <Typography className="sender-text">{msg.text}</Typography>
+              <Typography className="user-text">{msg.content}</Typography>
             </Box>
           ))}
-          {/* Ref to scroll to the end of comments */}
           <Box component={'div'} ref={commentsEndRef} />
         </Box>
         <TextField
