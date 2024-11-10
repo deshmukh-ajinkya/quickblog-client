@@ -50,7 +50,7 @@ function Dashboard(): React.ReactNode {
 
   useEffect(() => {
     handleGetBlog();
-  }, []);
+  }, [handleGetBlog]);
 
   // Render the dashboard content
   return (

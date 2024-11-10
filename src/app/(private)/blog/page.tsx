@@ -140,7 +140,7 @@ function Blog(): React.ReactElement {
 
   useEffect(() => {
     getOwnBlogs();
-  }, []);
+  }, [getOwnBlogs]);
 
   return (
     <Box className="blog-root-container">
