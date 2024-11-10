@@ -24,7 +24,7 @@ function Blog(): React.ReactElement {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [ownBlogs, setOwnBlogs] = useState<IBlog[]>([]);
   const [blogId, setBlogId] = useState<string | null | undefined>(''); // Blog ID to be used for update/delete
-  const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success message
+  const [validation, setValidation] = useState<string | null>(null); // State for success message
 
   const getOwnBlogs = useCallback(async (): Promise<void> => {
     const token = localStorage.getItem('token');
@@ -55,7 +55,7 @@ function Blog(): React.ReactElement {
   const handleCreateBlog = async (): Promise<void> => {
     // Basic validation
     if (!title.trim() || !content.trim() || category === 'select') {
-      setSuccessMessage('Please fill in all fields');
+      setValidation('Please fill in all fields');
       return;
     }
 
@@ -70,15 +70,15 @@ function Blog(): React.ReactElement {
     await axiosInstance.post('/create_blog', formData, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
-    setSuccessMessage('Blog added successfully');
+    setValidation('Blog added successfully');
     resetForm();
     getOwnBlogs(); // Refresh blogs after creation
-    setTimeout(() => setSuccessMessage(null), 3000); // Hide message after 3 seconds
+    setTimeout(() => setValidation(null), 3000); // Hide message after 3 seconds
   };
 
   const handleUpdateBlog = async (): Promise<void> => {
     if (!blogId) {
-      setSuccessMessage('No blog selected for update');
+      setValidation('No blog selected for update');
       return;
     }
 
@@ -94,15 +94,15 @@ function Blog(): React.ReactElement {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
 
-    setSuccessMessage('Blog updated successfully');
+    setValidation('Blog updated successfully');
     resetForm();
     getOwnBlogs(); // Refresh blogs after update
-    setTimeout(() => setSuccessMessage(null), 3000); // Hide message after 3 seconds
+    setTimeout(() => setValidation(null), 3000); // Hide message after 3 seconds
   };
 
   const handleDeleteBlog = async (blog_id: string | null | undefined): Promise<void> => {
     if (!blog_id) {
-      setSuccessMessage('No blog selected for deletion');
+      setValidation('No blog selected for deletion');
       return;
     }
 
@@ -110,10 +110,10 @@ function Blog(): React.ReactElement {
       data: { author: userId, blogId: blog_id },
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
-    setSuccessMessage('Blog deleted successfully');
+    setValidation('Blog deleted successfully');
     getOwnBlogs(); // Refresh blogs after deletion
     resetForm();
-    setTimeout(() => setSuccessMessage(null), 3000); // Hide message after 3 seconds
+    setTimeout(() => setValidation(null), 3000); // Hide message after 3 seconds
   };
 
   const resetForm = (): void => {
@@ -171,9 +171,9 @@ function Blog(): React.ReactElement {
             <MenuItem value="news">News</MenuItem>
           </Select>
           <Box>
-            {successMessage && (
+            {validation && (
               <Box className="validation-msg">
-                <Typography color="primary">{successMessage}</Typography>
+                <Typography color="primary">{validation}</Typography>
               </Box>
             )}
           </Box>
