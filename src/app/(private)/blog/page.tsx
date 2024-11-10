@@ -55,7 +55,7 @@ function Blog(): React.ReactElement {
   const handleCreateBlog = async (): Promise<void> => {
     // Basic validation
     if (!title.trim() || !content.trim() || category === 'select') {
-      setSuccessMessage('Please fill in all required fields and select a category');
+      setSuccessMessage('Please fill in all fields');
       return;
     }
 
@@ -83,7 +83,7 @@ function Blog(): React.ReactElement {
     }
 
     const formData = {
-      blogId, // Ensure blogId is selected
+      blogId,
       title,
       content,
       bannerImg: bannerImgBase64,
