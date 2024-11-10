@@ -41,6 +41,22 @@ function Blog(): React.ReactElement {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     if (event.target.files) {
       const file = event.target.files[0];
+
+      // Check file type (only allow images)
+      if (!file.type.startsWith('image/')) {
+        setValidation('Please select a valid image file');
+        fileInputRef.current!.value = ''; // Reset file input
+        return;
+      }
+
+      // Check file size (limit to 2MB, for example)
+      const MAX_SIZE_MB = 2;
+      if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+        setValidation(`File size should not exceed ${MAX_SIZE_MB}MB`);
+        fileInputRef.current!.value = ''; // Reset file input
+        return;
+      }
+
       setBannerImg(file);
 
       const reader = new FileReader();
@@ -49,14 +65,29 @@ function Blog(): React.ReactElement {
         setBannerImgBase64(base64String);
       };
       reader.readAsDataURL(file);
+      setValidation(null); // Clear any previous error
     }
   };
 
   const handleCreateBlog = async (): Promise<void> => {
     // Basic validation
-    if (!title.trim() || !content.trim() || category === 'select') {
-      setValidation('Please fill in all fields');
+    if (!title.trim()) {
+      setValidation('Please enter a title');
       return;
+    }
+
+    if (!content.trim()) {
+      setValidation('Please enter content for the blog');
+      return;
+    }
+
+    if (category === 'select') {
+      setValidation('Please select a category');
+      return;
+    }
+
+    if (fileInputRef) {
+      setValidation('Please select banner Image');
     }
 
     const formData = {
@@ -236,7 +267,8 @@ function Blog(): React.ReactElement {
         ))}
       </Box>
 
-      <input
+      <Box
+        component="input"
         type="file"
         accept="image/*"
         onChange={handleFileChange}
