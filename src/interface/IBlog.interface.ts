@@ -9,4 +9,5 @@ export interface IBlog {
   content: string;
   bannerImg: string;
   likesCount: number;
+  category: string; // Add this line
 }

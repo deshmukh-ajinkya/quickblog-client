@@ -35,7 +35,9 @@ function Dashboard(): React.ReactNode {
     const token = localStorage.getItem('token');
     const { data } = await axiosInstance.post(
       '/get_all_blog',
-      {},
+      {
+        limit: 5 // Add limit in the request body
+      },
       {
         headers: {
           Authorization: `Bearer ${token}`
@@ -43,12 +45,12 @@ function Dashboard(): React.ReactNode {
       }
     );
     setBlog(data);
-    dispatch(setBlogs(data)); // Dispatch with extracted userId
+    dispatch(setBlogs(data));
   };
 
   useEffect(() => {
     handleGetBlog();
-  });
+  }, []);
 
   // Render the dashboard content
   return (

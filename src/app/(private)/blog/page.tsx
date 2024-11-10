@@ -6,7 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Box, MenuItem, Select, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { axiosInstance } from '@/config';
 import { IBlog } from '@/interface/IBlog.interface';
@@ -14,29 +14,35 @@ import { RootState } from '@/store/store';
 import Like from '../../../../public/thumbs-up.png';
 import './style.css';
 
-// Main Blog component
 function Blog(): React.ReactElement {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [, setBannerImg] = useState<File | null>(null);
   const [bannerImgBase64, setBannerImgBase64] = useState<string | null>(null);
-  const [category, setCategory] = useState('select');
+  const [category, setCategory] = useState<string>('select');
   const userId = useSelector((state: RootState) => state.blog.userId);
-  const allBlogs = useSelector((state: RootState) => state.blog.blogs);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [ownBlogs, setOwnBlogs] = useState<IBlog[]>([]);
+  const [blogId, setBlogId] = useState<string | null | undefined>(''); // Blog ID to be used for update/delete
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); // State for success message
 
-  // Filter blogs to show only those authored by the current user
-  const filterOwnBlogs = (): IBlog[] => {
-    return allBlogs.filter((blog) => blog.author._id === userId);
+  const getOwnBlogs = async (): Promise<void> => {
+    const token = localStorage.getItem('token');
+    const { data } = await axiosInstance.post<IBlog[]>(
+      '/get_all_blog',
+      { userId },
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+    setOwnBlogs(data);
   };
 
-  // Handle file change
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     if (event.target.files) {
       const file = event.target.files[0];
       setBannerImg(file);
 
-      // Convert the file to Base64
       const reader = new FileReader();
       reader.onloadend = (): void => {
         const base64String = reader.result as string;
@@ -46,8 +52,13 @@ function Blog(): React.ReactElement {
     }
   };
 
-  // Handle blog creation
   const handleCreateBlog = async (): Promise<void> => {
+    // Basic validation
+    if (!title.trim() || !content.trim() || category === 'select') {
+      setSuccessMessage('Please fill in all required fields and select a category');
+      return;
+    }
+
     const formData = {
       author: userId,
       title,
@@ -57,40 +68,79 @@ function Blog(): React.ReactElement {
     };
 
     await axiosInstance.post('/create_blog', formData, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     });
+    setSuccessMessage('Blog added successfully');
     resetForm();
+    getOwnBlogs(); // Refresh blogs after creation
+    setTimeout(() => setSuccessMessage(null), 3000); // Hide message after 3 seconds
   };
 
-  // Function to reset form fields
+  const handleUpdateBlog = async (): Promise<void> => {
+    if (!blogId) {
+      setSuccessMessage('No blog selected for update');
+      return;
+    }
+
+    const formData = {
+      blogId, // Ensure blogId is selected
+      title,
+      content,
+      bannerImg: bannerImgBase64,
+      category
+    };
+
+    await axiosInstance.put('/update_blog', formData, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+
+    setSuccessMessage('Blog updated successfully');
+    resetForm();
+    getOwnBlogs(); // Refresh blogs after update
+    setTimeout(() => setSuccessMessage(null), 3000); // Hide message after 3 seconds
+  };
+
+  const handleDeleteBlog = async (blog_id: string | null | undefined): Promise<void> => {
+    if (!blog_id) {
+      setSuccessMessage('No blog selected for deletion');
+      return;
+    }
+
+    await axiosInstance.delete('/delete_blog', {
+      data: { author: userId, blogId: blog_id },
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    setSuccessMessage('Blog deleted successfully');
+    getOwnBlogs(); // Refresh blogs after deletion
+    resetForm();
+    setTimeout(() => setSuccessMessage(null), 3000); // Hide message after 3 seconds
+  };
+
   const resetForm = (): void => {
     setTitle('');
     setContent('');
     setBannerImg(null);
     setBannerImgBase64(null);
-    setCategory('');
+    setCategory('select');
+    setBlogId(null); // Reset blogId after form submission
   };
 
-  // Function to trigger the hidden file input when the AddBoxIcon is clicked
   const handleIconClick = (): void => {
     fileInputRef.current?.click();
   };
 
-  const handleDeleteBlog = async (): Promise<void> => {
-    const formData = {
-      author: userId,
-      blogId: '6713990fa0402eab8e8afee5'
-    };
-
-    await axiosInstance.delete('/delete_blog', {
-      data: formData,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    });
+  // Handle clicking on a blog to prepopulate the form
+  const handleBlogSelect = (blog: IBlog): void => {
+    setBlogId(blog.id);
+    setTitle(blog.title);
+    setContent(blog.content);
+    setBannerImgBase64(blog.bannerImg);
+    setCategory(blog.category);
   };
+
+  useEffect(() => {
+    getOwnBlogs();
+  }, []);
 
   return (
     <Box className="blog-root-container">
@@ -109,26 +159,28 @@ function Blog(): React.ReactElement {
           )}
         </Box>
         <Box className="blog-select-container">
+          <Select
+            name="select-category"
+            size="small"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="blog-select"
+            fullWidth>
+            <MenuItem value="select">Select Category</MenuItem>
+            <MenuItem value="technology">Technology</MenuItem>
+            <MenuItem value="news">News</MenuItem>
+          </Select>
           <Box>
-            <Select
-              name="select-category"
-              size="small"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="blog-select"
-              fullWidth>
-              <MenuItem value="select">Select Category</MenuItem>
-              <MenuItem value="technology">Technology</MenuItem>
-              <MenuItem value="news">News</MenuItem>
-            </Select>
-          </Box>
-          <Box className="validation-msg">
-            <Typography color="primary">added successful</Typography>
+            {successMessage && (
+              <Box className="validation-msg">
+                <Typography color="primary">{successMessage}</Typography>
+              </Box>
+            )}
           </Box>
           <Box className="blog-actions">
             <AddBoxIcon color="primary" onClick={handleCreateBlog} />
-            <ChangeCircleIcon color="primary" />
-            <DeleteIcon color="primary" onClick={handleDeleteBlog} />
+            <ChangeCircleIcon color="primary" onClick={handleUpdateBlog} />
+            <DeleteIcon color="primary" onClick={() => handleDeleteBlog(blogId)} />
           </Box>
         </Box>
       </Box>
@@ -152,8 +204,12 @@ function Blog(): React.ReactElement {
         className="blog-textfield"
       />
       <Box className="blog-content-container">
-        {filterOwnBlogs().map((blog, id) => (
-          <Box key={id} className="blog-content-box">
+        {ownBlogs.map((blog, id) => (
+          <Box
+            key={id}
+            className={`blog-content-box ${blog.id === blogId ? 'highlighted' : ''}`}
+            onClick={() => handleBlogSelect(blog)} // Prepopulate form with blog data
+          >
             <Box component="img" src={blog.bannerImg} alt="Banner" className="blog-image" />
             <Typography color="primary" className="blog-user-info-text">
               {blog.title}

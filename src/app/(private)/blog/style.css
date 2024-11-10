@@ -44,6 +44,7 @@
 
 .blog-select-container {
   display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
 }
 
 .blog-select {
@@ -234,4 +235,18 @@
     align-items: flex-start;
     gap: 0.5rem;
   }
+}
+
+/* Add this to your CSS */
+.blog-content-box {
+  border: 1px solid #008ae6;
+  border-radius: 12px;
+  padding: 0.5rem;
+  min-width: 200px;
+  transition: border-color 0.3s ease;
+}
+
+.blog-content-box.highlighted {
+  border-color: #008ae6;
+  border-width: 2px;
 }
