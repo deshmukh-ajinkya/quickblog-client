@@ -3,11 +3,9 @@ import AssessmentIcon from '@mui/icons-material/Assessment';
 import EditIcon from '@mui/icons-material/Edit';
 import MailIcon from '@mui/icons-material/Mail';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import WindowIcon from '@mui/icons-material/Window';
 import {
   Box,
-  InputAdornment,
   Menu,
   MenuItem,
   TextField,
@@ -127,20 +125,6 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
     <Box className="private-root-container">
       {/* Logo image */}
       <Image src={Logo} alt="logo" className="header-logo-image" />
-
-      {/* Search input field */}
-      <TextField
-        placeholder="Search"
-        size="small"
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <SearchOutlinedIcon color="primary" />
-            </InputAdornment>
-          )
-        }}
-        className="header-search-input"
-      />
 
       {/* Header icons including theme switcher and user profile icon */}
       <Box className="header-icons">
