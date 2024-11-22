@@ -68,26 +68,44 @@ function Insight(): React.ReactElement {
   const [toDate, setToDate] = useState<string>('');
   const userId = useSelector((state: RootState) => state.blog.userId);
 
+  const getCurrentDate = (): string => {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = today.getFullYear();
+
+    return `${day}-${month}-${year}`;
+  };
+
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
       const token = localStorage.getItem('token');
       setLoading(true);
-      const response = await axiosInstance.post(
-        '/get_blog_insight',
-        {
-          userID: userId,
-          fromDate: fromDate || '22-11-2024',
-          toDate: toDate || '22-11-2024'
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
+      try {
+        const response = await axiosInstance.post(
+          '/get_blog_insight',
+          {
+            userID: userId,
+            fromDate: fromDate || getCurrentDate(),
+            toDate: toDate || getCurrentDate()
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }
-        }
-      );
-      setData(response.data);
-      setLoading(false);
+        );
+        setData(response.data);
+      } catch (error) {
+        setData({
+          blogData: [],
+          likesByCategory: []
+        }); // Fallback state
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchData();
   }, [fromDate, toDate, userId]);
 
@@ -121,7 +139,7 @@ function Insight(): React.ReactElement {
     labels: data.blogData.map((post) => post.title) || ['No Data'],
     datasets: [
       {
-        label: 'Likes',
+        label: 'Count',
         data: data.blogData.map((post) => post.likeCount) || [0],
         backgroundColor: 'rgba(75,192,192,0.4)',
         borderColor: 'rgba(75,192,192,1)',
@@ -161,15 +179,15 @@ function Insight(): React.ReactElement {
           <DateField
             size="small"
             className="select-date"
-            label="From Date"
-            variant="filled"
+            label="Start Date"
+            variant="standard"
             onChange={(date) => setFromDate(date?.format('DD-MM-YYYY') || '')}
           />
           <DateField
             size="small"
             className="select-date"
-            label="To Date"
-            variant="filled"
+            label="End Date"
+            variant="standard"
             onChange={(date) => setToDate(date?.format('DD-MM-YYYY') || '')}
           />
         </LocalizationProvider>
@@ -182,7 +200,7 @@ function Insight(): React.ReactElement {
           {/* Doughnut Chart */}
           <Box className="like-chart-container">
             <Typography color="primary" variant="h6">
-              Trending
+              Trends
             </Typography>
             <Box className="liked-chart">
               <Doughnut data={doughnutData} options={dounotOptions} />
@@ -235,7 +253,7 @@ function Insight(): React.ReactElement {
               <Bar data={barData} options={chartOptions} />
             </Box>
             <Typography color="primary" variant="h6" className="count-title">
-              Visitors Count
+              Visitors
             </Typography>
             <Box className="count-graph">
               <Bar data={barData} options={chartOptions} />
