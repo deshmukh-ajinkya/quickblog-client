@@ -1,5 +1,7 @@
+/* eslint-disable complexity */
+/* eslint-disable indent */
 'use client';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -20,11 +22,13 @@ import {
   LineElement,
   PointElement
 } from 'chart.js';
-import React from 'react';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import React, { useEffect, useState } from 'react';
+import { Bar, Doughnut } from 'react-chartjs-2';
 import './style.css';
+import { useSelector } from 'react-redux';
+import { axiosInstance } from '@/config';
+import { RootState } from '@/store/store';
 
-// Register Chart.js components for creating charts
 ChartJS.register(
   ArcElement,
   Tooltip,
@@ -36,163 +40,209 @@ ChartJS.register(
   PointElement
 );
 
-// Data for the Doughnut chart showing likes by category
-const data = {
-  datasets: [
-    {
-      label: 'Likes by Category',
-      data: [300, 50, 100],
-      backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-      hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
-    }
-  ]
-};
+interface Post {
+  title: string;
+  likeCount: number;
+  createdAt: string;
+}
 
-// Data for the Bar chart showing likes for different blogs
-const likeData = {
-  labels: ['Blog 1', 'Blog 2', 'Blog 3'],
-  datasets: [
-    {
-      label: 'Likes',
-      data: [65, 59, 180],
-      backgroundColor: 'rgba(75,192,192,0.4)',
-      borderColor: 'rgba(75,192,192,1)',
-      borderWidth: 0.5,
-      barThickness: 50
-    }
-  ]
-};
+interface CategoryLike {
+  _id: string;
+  totalLikes: number;
+  category: string;
+}
 
-// Data for the Line chart showing visitor count over time
-const countData = {
-  labels: ['Blog 1', 'Blog 2', 'Blog 3'],
-  datasets: [
-    {
-      label: 'Count',
-      data: [65, 59, 290],
-      backgroundColor: 'rgba(75,192,192,0.4)',
-      borderColor: 'rgba(75,192,192,1)',
-      borderWidth: 2,
-      tension: 0.1 // Smooths the line chart
-    }
-  ]
-};
+interface InsightData {
+  blogData: Post[];
+  likesByCategory: CategoryLike[];
+}
 
-// Options for the Doughnut chart
-const doughnutOptions = {
-  responsive: true,
-  maintainAspectRatio: false
-};
-
-// Options for the Bar chart
-const barOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  scales: {
-    x: {
-      grid: {
-        display: false // Hides grid lines on the x-axis
-      }
-    },
-    y: {
-      beginAtZero: true // Ensures the y-axis starts at zero
-    }
-  }
-};
-
-// Options for the Line chart
-const lineOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  scales: {
-    x: {
-      grid: {
-        display: false // Hides grid lines on the x-axis
-      }
-    },
-    y: {
-      beginAtZero: true // Ensures the y-axis starts at zero
-    }
-  }
-};
-
-// Main component for displaying insights
 function Insight(): React.ReactElement {
-  // Function to create data for the table
-  function createData(title: string, like: string): { title: string; like: string } {
-    return { title, like };
-  }
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<InsightData>({
+    blogData: [],
+    likesByCategory: []
+  });
 
-  // Sample data for the table
-  const rows = [
-    createData('React.js', '2.5k'),
-    createData('Node.Js', '5k'),
-    createData('Next.js', '5k'),
-    createData('Express.js', '5k'),
-    createData('Nest.js', '5k')
-  ];
+  const [fromDate, setFromDate] = useState<string>('');
+  const [toDate, setToDate] = useState<string>('');
+  const userId = useSelector((state: RootState) => state.blog.userId);
+
+  useEffect(() => {
+    const fetchData = async (): Promise<void> => {
+      const token = localStorage.getItem('token');
+      setLoading(true);
+      const response = await axiosInstance.post(
+        '/get_blog_insight',
+        {
+          userID: userId,
+          fromDate: fromDate || '22-11-2024',
+          toDate: toDate || '22-11-2024'
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      setData(response.data);
+      setLoading(false);
+    };
+    fetchData();
+  }, [fromDate, toDate, userId]);
+
+  const defaultDoughnutData = {
+    labels: ['No Data'],
+    datasets: [
+      {
+        label: 'Likes by Category',
+        data: [1],
+        backgroundColor: ['#d3d3d3'],
+        hoverBackgroundColor: ['#a9a9a9']
+      }
+    ]
+  };
+
+  const doughnutData = data.likesByCategory.length
+    ? {
+        labels: data.likesByCategory.map((category) => category.category),
+        datasets: [
+          {
+            label: 'Likes by Category',
+            data: data.likesByCategory.map((category) => category.totalLikes),
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+            hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+          }
+        ]
+      }
+    : defaultDoughnutData;
+
+  const barData = {
+    labels: data.blogData.map((post) => post.title) || ['No Data'],
+    datasets: [
+      {
+        label: 'Likes',
+        data: data.blogData.map((post) => post.likeCount) || [0],
+        backgroundColor: 'rgba(75,192,192,0.4)',
+        borderColor: 'rgba(75,192,192,1)',
+        borderWidth: 0.5,
+        barThickness: 50
+      }
+    ]
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true, // Ensure the scale starts at 0
+        ticks: {
+          stepSize: 1, // Force step size to 1 (integer values)
+          callback: function (tickValue: string | number): string | number {
+            // Adjust type to string | number
+            return typeof tickValue === 'number' && tickValue % 1 === 0 ? tickValue : ''; // Handle both string and number types
+          }
+        }
+      }
+    }
+  };
+
+  const dounotOptions = {
+    responsive: true,
+    maintainAspectRatio: false
+  };
 
   return (
     <Box className="insight-root-container">
-      {/* Date picker component */}
+      {/* Date picker */}
       <Box className="date-container">
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DateField size="small" className="select-date" />
+          <DateField
+            size="small"
+            className="select-date"
+            label="From Date"
+            variant="filled"
+            onChange={(date) => setFromDate(date?.format('DD-MM-YYYY') || '')}
+          />
+          <DateField
+            size="small"
+            className="select-date"
+            label="To Date"
+            variant="filled"
+            onChange={(date) => setToDate(date?.format('DD-MM-YYYY') || '')}
+          />
         </LocalizationProvider>
       </Box>
 
-      {/* Doughnut chart showing likes by category */}
-      <Box className="like-chart-container">
-        <Typography color="primary" variant="h6">
-          Liked By Category
-        </Typography>
-        <Box className="liked-chart">
-          <Doughnut data={data} options={doughnutOptions} />
-        </Box>
-      </Box>
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        <>
+          {/* Doughnut Chart */}
+          <Box className="like-chart-container">
+            <Typography color="primary" variant="h6">
+              Trending
+            </Typography>
+            <Box className="liked-chart">
+              <Doughnut data={doughnutData} options={dounotOptions} />
+            </Box>
+          </Box>
 
-      {/* Table showing post overview */}
-      <Box className="post-overview-container">
-        <Typography color="primary" variant="h6">
-          Post Overview
-        </Typography>
-        <TableContainer className="table-container">
-          <Table aria-label="simple table">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Title</TableCell>
-                <TableCell align="right">Like</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((row) => (
-                <TableRow key={row.title}>
-                  <TableCell component="th" scope="row">
-                    {row.title}
-                  </TableCell>
-                  <TableCell align="right">{row.like}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
+          {/* Table */}
+          <Box className="post-overview-container">
+            <Typography color="primary" variant="h6">
+              Post Overview
+            </Typography>
+            <TableContainer className="table-container">
+              <Table aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600 }}>Title</TableCell>
+                    <TableCell align="right">Likes</TableCell>
+                    <TableCell align="right">Created At</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data.blogData.length ? (
+                    data.blogData.map((row) => (
+                      <TableRow key={row.title}>
+                        <TableCell component="th" scope="row">
+                          {row.title}
+                        </TableCell>
+                        <TableCell align="right">{row.likeCount}</TableCell>
+                        <TableCell align="right">{row.createdAt}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} align="center">
+                        No Data Available
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
 
-      {/* Bar and Line charts showing blog insights */}
-      <Box className="graph-container">
-        <Typography color="primary" variant="h6">
-          Most Liked Blog
-        </Typography>
-        <Box className="most-liked-graph">
-          <Bar data={likeData} options={barOptions} />
-        </Box>
-        <Typography color="primary" variant="h6" className="count-title">
-          Visitors Count
-        </Typography>
-        <Box className="count-graph">
-          <Line data={countData} options={lineOptions} />
-        </Box>
-      </Box>
+          {/* Bar and Line Charts */}
+          <Box className="graph-container">
+            <Typography color="primary" variant="h6">
+              Most Liked Blog
+            </Typography>
+            <Box className="most-liked-graph">
+              <Bar data={barData} options={chartOptions} />
+            </Box>
+            <Typography color="primary" variant="h6" className="count-title">
+              Visitors Count
+            </Typography>
+            <Box className="count-graph">
+              <Bar data={barData} options={chartOptions} />
+            </Box>
+          </Box>
+        </>
+      )}
     </Box>
   );
 }
