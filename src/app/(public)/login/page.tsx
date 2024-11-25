@@ -23,6 +23,7 @@ function Login(): React.ReactElement {
       email,
       password
     });
+
     const storedToken = data.data.token;
     if (storedToken) {
       localStorage.setItem('token', data.data.token);

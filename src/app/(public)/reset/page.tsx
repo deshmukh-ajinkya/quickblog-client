@@ -1,11 +1,13 @@
+/* eslint-disable complexity */
 'use client';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import withAuth from '@/components/auth/withAuth';
+import { axiosInstance } from '@/config';
 import Logo from '../../../../public/icon.png';
-import './style.css'; // Import the plain CSS file
+import './style.css';
 
 const steps = ['Enter Email', 'Enter OTP', 'Set New Password'];
 
@@ -14,6 +16,8 @@ function Reset(): React.ReactElement {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
+  const [validationMessage, setValidationMessage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const handleStepChange = (direction: 'next' | 'back'): void => {
     setActiveStep((prevStep) => prevStep + (direction === 'next' ? 1 : -1));
@@ -24,13 +28,38 @@ function Reset(): React.ReactElement {
     setEmail('');
     setOtp('');
     setPassword('');
+    setValidationMessage('');
   };
 
-  const handleSubmit = (): void => {
-    if (activeStep === steps.length - 1) {
-      handleReset();
-    } else {
-      handleStepChange('next');
+  const handleSubmit = async (): Promise<void> => {
+    setValidationMessage('');
+    setIsLoading(true);
+
+    try {
+      if (activeStep === 0) {
+        // Call API to send OTP
+        const response = await axiosInstance.post('/get_otp', { email });
+        setValidationMessage(response.data.message || 'OTP sent to your email.');
+        handleStepChange('next');
+      } else if (activeStep === 1) {
+        // Optionally validate OTP (backend should handle this in the reset-password call)
+        if (!otp) throw new Error('OTP is required.');
+        handleStepChange('next');
+      } else if (activeStep === 2) {
+        // Call API to reset password
+        const response = await axiosInstance.post('/reset', {
+          email,
+          otp,
+          newPassword: password
+        });
+        setValidationMessage(response.data.message || 'Password changed successfully.');
+        handleReset();
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setValidationMessage(error.response?.data?.message || 'An error occurred.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,7 +106,11 @@ function Reset(): React.ReactElement {
 
       <Box className="input-container">
         {renderStepContent()}
-        <Typography className="validation-message">Validation message</Typography>
+        {validationMessage && (
+          <Typography className="validation-message" color="error">
+            {validationMessage}
+          </Typography>
+        )}
       </Box>
 
       <Box className="button-container">
@@ -86,7 +119,8 @@ function Reset(): React.ReactElement {
             variant="contained"
             size="small"
             className="reset-button"
-            onClick={() => handleStepChange('back')}>
+            onClick={() => handleStepChange('back')}
+            disabled={isLoading}>
             Back
           </Button>
         )}
@@ -95,8 +129,9 @@ function Reset(): React.ReactElement {
           color="primary"
           size="small"
           className="reset-button"
-          onClick={handleSubmit}>
-          {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
+          onClick={handleSubmit}
+          disabled={isLoading}>
+          {isLoading ? 'Loading...' : activeStep === steps.length - 1 ? 'Submit' : 'Next'}
         </Button>
       </Box>
 
