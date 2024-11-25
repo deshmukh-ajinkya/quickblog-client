@@ -1,6 +1,6 @@
 'use client';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Box, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -23,14 +23,8 @@ interface Blog {
 }
 
 function Dashboard(): React.ReactNode {
-  // State variable to store the selected category (initially set to 1)
-  const [category, setCategory] = React.useState<number>(1);
   const [blog, setBlog] = useState<Blog[]>([]);
   const dispatch = useDispatch();
-  // Function to handle changes in the category selection dropdown
-  const handleChange = (event: SelectChangeEvent): void => {
-    setCategory(Number(event.target.value)); // Update state with the selected value converted to a number
-  };
 
   const handleGetBlog = useCallback(async (): Promise<void> => {
     const token = localStorage.getItem('token');
@@ -56,17 +50,6 @@ function Dashboard(): React.ReactNode {
   // Render the dashboard content
   return (
     <Box className="dashboard-root-container">
-      {/* Category selection dropdown */}
-      <Select
-        name="select-category"
-        className="dashboard-select-category"
-        size="small"
-        value={String(category)} // Set the selected value from state
-        onChange={handleChange}>
-        <MenuItem value={1}>All</MenuItem>
-        <MenuItem value={2}>Technology</MenuItem>
-      </Select>
-
       {/* Container for blog posts */}
       <Box className="dashboard-blog-container">
         {/* blog posts */}
@@ -74,7 +57,7 @@ function Dashboard(): React.ReactNode {
           <Link
             className="dashboard-blog-card-wrapper"
             key={index} // Set a unique key for each blog post
-            href={`/dashboard/${blogData.title.toLocaleLowerCase()}`}
+            href={`/dashboard/${encodeURIComponent(blogData.title.toLowerCase().replace(/\s+/g, '-'))}`}
             onClick={() => {
               dispatch(setBlogId(String(blogData.id)));
             }}>

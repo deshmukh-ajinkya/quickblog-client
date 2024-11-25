@@ -56,26 +56,23 @@ interface InsightData {
   blogData: Post[];
   likesByCategory: CategoryLike[];
 }
+const getCurrentDate = (): string => {
+  const today = new Date();
+  const day = String(today.getDate()).padStart(2, '0');
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+  const year = today.getFullYear();
 
+  return `${day}-${month}-${year}`;
+};
 function Insight(): React.ReactElement {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<InsightData>({
     blogData: [],
     likesByCategory: []
   });
-
-  const [fromDate, setFromDate] = useState<string>('');
-  const [toDate, setToDate] = useState<string>('');
+  const [fromDate, setFromDate] = useState<string>(getCurrentDate());
+  const [toDate, setToDate] = useState<string>(getCurrentDate());
   const userId = useSelector((state: RootState) => state.blog.userId);
-
-  const getCurrentDate = (): string => {
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-    const year = today.getFullYear();
-
-    return `${day}-${month}-${year}`;
-  };
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
@@ -86,8 +83,8 @@ function Insight(): React.ReactElement {
           '/get_blog_insight',
           {
             userID: userId,
-            fromDate: fromDate || getCurrentDate(),
-            toDate: toDate || getCurrentDate()
+            fromDate: fromDate,
+            toDate: toDate
           },
           {
             headers: {

@@ -29,7 +29,7 @@ const BlogDetail: React.FC = () => {
   const userID = useSelector((state: RootState) => state.blog.userId);
   const commentsEndRef = useRef<HTMLDivElement>(null);
 
-  const data = blogData.find((blog) => blog.title.toLowerCase() === slug);
+  const data = blogData.find((blog) => blog.title.toLowerCase().replace(/\s+/g, '-') === slug);
 
   // Fetch blog data and initialize like state
   useEffect(() => {

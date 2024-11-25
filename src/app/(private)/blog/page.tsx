@@ -266,7 +266,9 @@ function Blog(): React.ReactElement {
                   color="primary"
                   fontSize="small"
                   onClick={() => {
-                    router.push(`/dashboard/${blog.title.toLocaleLowerCase()}`);
+                    router.push(
+                      `/dashboard/${encodeURIComponent(blog.title.toLowerCase().replace(/\s+/g, '-'))}`
+                    );
                   }}
                 />
               </Box>
