@@ -12,11 +12,14 @@ const blogSlice = createSlice({
     setUserId: (state, action: PayloadAction<string | null>) => {
       state.userId = action.payload;
     },
+    setUserName: (state, action: PayloadAction<string>) => {
+      state.userName = action.payload;
+    },
     setBlogId: (state, action: PayloadAction<string | null>) => {
       state.blogId = action.payload;
     }
   }
 });
 
-export const { setBlogs, setUserId, setBlogId } = blogSlice.actions;
+export const { setBlogs, setUserId, setUserName, setBlogId } = blogSlice.actions;
 export default blogSlice.reducer;

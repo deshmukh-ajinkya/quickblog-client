@@ -1,27 +1,17 @@
 'use client';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import EditIcon from '@mui/icons-material/Edit';
-import MailIcon from '@mui/icons-material/Mail';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import WindowIcon from '@mui/icons-material/Window';
-import {
-  Box,
-  Menu,
-  MenuItem,
-  TextField,
-  Typography,
-  useMediaQuery,
-  useTheme,
-  IconButton
-} from '@mui/material';
-import Image, { StaticImageData } from 'next/image';
+import { Box, Typography } from '@mui/material';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { BaseSyntheticEvent, ChangeEvent, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import withAuth from '@/components/auth/withAuth';
-import { axiosInstance } from '@/config';
 import { INavigationItem } from '@/interface';
+import { RootState } from '@/store/store';
 import Logo from '../../../public/icon.png';
-import User from '../../../public/user.png';
 import './style.css';
 
 // Define the private navigation paths with their titles, icons, and URLs
@@ -35,18 +25,13 @@ const privatePaths = [
 function Private({ children }: { children: React.ReactNode }): React.ReactNode {
   const router = useRouter(); // Hook to programmatically navigate
   const pathname = usePathname(); // Get the current pathname for navigation highlighting
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null); // State for menu anchor element
-  const [email, setEmail] = React.useState('user@example.com'); // State for user email
-  const [name, setName] = React.useState('John Doe'); // State for user name
-  const [isEditing, setIsEditing] = useState<{ email: boolean; name: boolean }>({
-    email: false,
-    name: false
-  }); // State for tracking if editing mode is active
+  const [name, setName] = React.useState(''); // State for user name
   const [selectedItem, setSelectedItem] = React.useState(() => {
     // Determine the initially selected navigation item based on the current pathname
     const initialSelected = privatePaths.find((item) => item.url === pathname);
     return initialSelected?.title || 'Explore';
   });
+  const userName = useSelector((state: RootState) => state.blog.userName);
 
   const handleLogout = (): void => {
     localStorage.removeItem('token');
@@ -62,65 +47,10 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
     [router]
   );
 
-  // Open the user profile menu
-  const handleMenuOpen = (event: BaseSyntheticEvent): void => {
-    setAnchorEl(event.currentTarget);
-  };
+  useEffect(() => {
+    setName(userName as string);
+  }, [userName]);
 
-  // Close the user profile menu
-  const handleMenuClose = (): void => {
-    setAnchorEl(null);
-  };
-
-  // Handle email input change
-  const handleEmailChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setEmail(event.target.value);
-  };
-
-  // Handle name input change
-  const handleNameChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setName(event.target.value);
-  };
-
-  // Toggle between editing and viewing mode for profile fields
-  const toggleEditMode = (field: 'email' | 'name'): void => {
-    setIsEditing((prev) => ({ ...prev, [field]: !prev[field] }));
-    handleUpdateProfile();
-  };
-
-  const theme = useTheme(); // Get the current theme for responsive design
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Check if the viewport is mobile-sized
-  const inputRef = useRef<HTMLInputElement | null>(null); // Ensure the ref is typed as an HTMLInputElement
-  const [imagePreview, setImagePreview] = useState<string | StaticImageData>(User);
-
-  const handleImageClick = (): void => {
-    // Trigger the hidden file input click
-    inputRef.current!.click();
-  };
-
-  const handleFileChange = (event: BaseSyntheticEvent): void => {
-    const file = event.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file); // Create a preview URL
-      setImagePreview(imageUrl); // Update the image source with the new file    }
-    }
-  };
-
-  const handleUpdateProfile = async (): Promise<void> => {
-    await axiosInstance.post(
-      '/update_profile',
-      {
-        userId: '67139348a0402eab8e8afe8c',
-        email,
-        name
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      }
-    );
-  };
   return (
     <Box className="private-root-container">
       {/* Logo image */}
@@ -128,102 +58,11 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
 
       {/* Header icons including theme switcher and user profile icon */}
       <Box className="header-icons">
-        <Image
-          src={imagePreview}
-          width={200}
-          height={200}
-          alt="user"
-          onClick={handleMenuOpen}
-          className="user-profile-icon"
-        />
+        <Typography variant="body2" component="span" fontWeight={600} color="primary">
+          {name}
+        </Typography>
+        <ExitToAppIcon fontSize="small" onClick={handleLogout} color="primary" />
       </Box>
-
-      {/* User profile menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        MenuListProps={{
-          sx: {
-            minWidth: 230, // Fixed minimum width for the menu
-            maxWidth: isMobile ? '100%' : 240,
-            width: isMobile ? '100%' : 'auto'
-          }
-        }}
-        className="account-menu">
-        {/* Profile information */}
-        <MenuItem className="profile-menu-items">
-          <Box component="div" display="flex" alignItems="center" width="100%">
-            {/* Dynamic Image Component */}
-            <Image
-              src={imagePreview} // The image preview will update when a new file is selected
-              alt="user"
-              className="profile-img"
-              onClick={handleImageClick}
-              width={150} // Example width
-              height={150} // Example height
-            />
-
-            {/* Hidden file input */}
-            <Box
-              component="input"
-              type="file"
-              hidden
-              ref={inputRef} // Reference to trigger the file input
-              onChange={handleFileChange} // Handle file input change
-              accept="image/*" // Accept only image files
-            />
-            {isEditing.name ? (
-              <TextField
-                value={name}
-                onChange={handleNameChange}
-                size="small"
-                variant="outlined"
-                className="profile-email"
-              />
-            ) : (
-              <Typography variant="body2" component="span">
-                {name}
-              </Typography>
-            )}
-            <IconButton
-              onClick={() => toggleEditMode('name')}
-              size="small"
-              sx={{ marginLeft: 'auto' }}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Box>
-        </MenuItem>
-
-        {/* Email information */}
-        <MenuItem className="profile-menu-items">
-          <Box component="div" display="flex" alignItems="center" width="100%">
-            <MailIcon color="primary" className="mail-icon" />
-            {isEditing.email ? (
-              <TextField
-                value={email}
-                onChange={handleEmailChange}
-                size="small"
-                variant="outlined"
-                className="profile-email"
-              />
-            ) : (
-              <Typography variant="body2">{email}</Typography>
-            )}
-            <IconButton
-              onClick={() => toggleEditMode('email')}
-              size="small"
-              sx={{ marginLeft: 'auto' }}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-          </Box>
-        </MenuItem>
-
-        {/* Logout option */}
-        <MenuItem onClick={handleLogout}>
-          <Typography className="logout-item">Logout</Typography>
-        </MenuItem>
-      </Menu>
 
       {/* Main content area where children components are rendered */}
       <Box className="children-content">{children}</Box>

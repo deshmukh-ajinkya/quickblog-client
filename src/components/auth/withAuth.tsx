@@ -2,7 +2,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { setUserId } from '@/store/slice/blogSlice';
+import { setUserId, setUserName } from '@/store/slice/blogSlice';
 import { getToken, verifyToken } from '@/utils';
 import Loading from '../loading/loading';
 
@@ -35,7 +35,7 @@ const withAuth = <P extends WithAuthProps>(
       const isTokenValid = token && verifyToken(token);
 
       dispatch(setUserId((isTokenValid as JwtPayload)?.userId));
-
+      dispatch(setUserName((isTokenValid as JwtPayload)?.name));
       // Check if the token is valid
       if (!isTokenValid) {
         if (isPublicRoute(pathname)) {
