@@ -13,6 +13,7 @@ import { RootState } from '@/store/store';
 
 interface Comment {
   authorID: {
+    _id: string; // Include the _id property
     name: string;
   };
   content: string;
@@ -111,7 +112,10 @@ const BlogDetail: React.FC = () => {
 
       setComments((prevComments) => [
         ...prevComments,
-        { authorID: { name: 'You' }, content: comment }
+        {
+          authorID: { _id: userID as string, name: 'You' }, // Ensure _id is included
+          content: comment
+        }
       ]);
       setComment('');
     }
@@ -142,13 +146,16 @@ const BlogDetail: React.FC = () => {
             <Box key={index} className="user-comment">
               <Box className="user-comment-info">
                 <AccountCircleIcon color="secondary" fontSize="small" />
-                <Typography className="user-name-text">{msg.authorID?.name}</Typography>
+                <Typography className="user-name-text">
+                  {msg.authorID?._id === userID ? 'You' : msg.authorID?.name}
+                </Typography>
               </Box>
               <Typography className="user-text">{msg.content}</Typography>
             </Box>
           ))}
           <Box component={'div'} ref={commentsEndRef} />
         </Box>
+
         <TextField
           className="comment-input"
           placeholder="Add Your Comment Here"
