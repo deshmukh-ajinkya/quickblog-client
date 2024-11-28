@@ -38,7 +38,7 @@
   height: 100%;
   scrollbar-width: none;
   &.MuiTypography-root {
-    font-size: 0.8rem;
+    font-size: 1rem;
     line-height: 1.5;
   }
 }
@@ -145,7 +145,7 @@
   }
 }
 
-@media (width<= 600px) {
+@media (width<= 900px) {
   .blog-content-root-container {
     padding: 1rem;
   }

@@ -127,6 +127,9 @@
   border-radius: 12px 12px 0px 0px;
   width: 100%;
   height: auto;
+  aspect-ratio: 16/9;
+  object-fit: contain;
+
 }
 
 .blog-info {
@@ -165,6 +168,11 @@
 
 .blog-user-like-icon {
   width: 20px;
+}
+
+.blog-banner-preview{
+  aspect-ratio: 16/9;
+  object-fit: contain;
 }
 
 @media (width <= 900px) {

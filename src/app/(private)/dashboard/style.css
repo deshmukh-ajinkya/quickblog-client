@@ -59,6 +59,7 @@
   width: 100%;
   border-radius: 12px 12px 0px 0px;
   block-size: auto;
+  aspect-ratio: 16/9;
 }
 
 .dashboard-blog-title {
