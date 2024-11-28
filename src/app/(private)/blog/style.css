@@ -241,6 +241,11 @@
     align-items: flex-start;
     gap: 0.5rem;
   }
+  .blog-banner-preview {
+    aspect-ratio: 16/9;
+    object-fit: contain;
+    height: auto;
+  }
 }
 
 /* Add this to your CSS */
