@@ -129,7 +129,6 @@
   height: auto;
   aspect-ratio: 16/9;
   object-fit: contain;
-
 }
 
 .blog-info {
@@ -170,7 +169,7 @@
   width: 20px;
 }
 
-.blog-banner-preview{
+.blog-banner-preview {
   aspect-ratio: 16/9;
   object-fit: contain;
 }
