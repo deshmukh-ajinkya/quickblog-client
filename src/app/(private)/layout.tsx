@@ -1,13 +1,12 @@
 'use client';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import EditIcon from '@mui/icons-material/Edit';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import MailIcon from '@mui/icons-material/Mail';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import WindowIcon from '@mui/icons-material/Window';
 import {
   Box,
-  InputAdornment,
   Menu,
   MenuItem,
   TextField,
@@ -19,7 +18,6 @@ import {
 import Image, { StaticImageData } from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { BaseSyntheticEvent, ChangeEvent, useRef, useState } from 'react';
-import { CustomTheme } from '@/components';
 import { INavigationItem } from '@/interface';
 import Logo from '../../../public/icon.png';
 import User from '../../../public/user.png';
@@ -57,11 +55,6 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
     },
     [router]
   );
-
-  // Open the user profile menu
-  const handleMenuOpen = (event: BaseSyntheticEvent): void => {
-    setAnchorEl(event.currentTarget);
-  };
 
   // Close the user profile menu
   const handleMenuClose = (): void => {
@@ -105,31 +98,10 @@ function Private({ children }: { children: React.ReactNode }): React.ReactNode {
       {/* Logo image */}
       <Image src={Logo} alt="logo" className="header-logo-image" />
 
-      {/* Search input field */}
-      <TextField
-        placeholder="Search"
-        size="small"
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <SearchOutlinedIcon color="primary" />
-            </InputAdornment>
-          )
-        }}
-        className="header-search-input"
-      />
-
       {/* Header icons including theme switcher and user profile icon */}
       <Box className="header-icons">
-        <CustomTheme />
-        <Image
-          src={imagePreview}
-          width={200}
-          height={200}
-          alt="user"
-          onClick={handleMenuOpen}
-          className="user-profile-icon"
-        />
+        <Typography color="primary">Ajinkya Deshmukh</Typography>
+        <ExitToAppIcon fontSize="small" color="primary" />
       </Box>
 
       {/* User profile menu */}

@@ -1,6 +1,6 @@
 'use client';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Box, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
@@ -9,28 +9,9 @@ import Like from '../../../../public/thumbs-up.svg';
 import './style.css';
 
 function Dashboard(): React.ReactNode {
-  // State variable to store the selected category (initially set to 1)
-  const [category, setCategory] = React.useState<number>(1);
-
-  // Function to handle changes in the category selection dropdown
-  const handleChange = (event: SelectChangeEvent): void => {
-    setCategory(Number(event.target.value)); // Update state with the selected value converted to a number
-  };
-
   // Render the dashboard content
   return (
     <Box className="dashboard-root-container">
-      {/* Category selection dropdown */}
-      <Select
-        name="select-category"
-        className="dashboard-select-category"
-        size="small"
-        value={String(category)} // Set the selected value from state
-        onChange={handleChange}>
-        <MenuItem value={1}>All</MenuItem>
-        <MenuItem value={2}>Technology</MenuItem>
-      </Select>
-
       {/* Container for blog posts */}
       <Box className="dashboard-blog-container">
         {/* Loop through the first 10 blog posts from mock data */}
