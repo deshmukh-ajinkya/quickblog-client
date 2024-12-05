@@ -18,4 +18,3 @@ This is a digital platform where you can share your thoughts, ideas, experiences
 | _Husky_             | Code stability          |
 | _Vercel_            | Code deployment         |
 
-### Deadline : 30 September 2024
