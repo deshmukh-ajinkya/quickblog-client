@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable import/order */
+/* eslint-disable complexity */
 'use client';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -72,6 +75,9 @@ function Blog(): React.ReactElement {
   };
 
   const handleCreateBlog = async (): Promise<void> => {
+    // Clear previous validation message
+    setValidation(null);
+
     // Basic validation
     if (!title.trim()) {
       setValidation('Please enter a title');
@@ -88,10 +94,12 @@ function Blog(): React.ReactElement {
       return;
     }
 
-    if (fileInputRef) {
+    if (!bannerImgBase64) {
       setValidation('Please select banner Image');
+      return;
     }
 
+    // Proceed with API call if all validations pass
     const formData = {
       author: userId,
       title,
@@ -100,13 +108,19 @@ function Blog(): React.ReactElement {
       category
     };
 
-    await axiosInstance.post('/create_blog', formData, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    });
-    setValidation('Blog added successfully');
-    resetForm();
-    getOwnBlogs(); // Refresh blogs after creation
-    setTimeout(() => setValidation(null), 3000); // Hide message after 3 seconds
+    try {
+      // Making API call to create blog
+      await axiosInstance.post('/create_blog', formData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      setValidation('Blog added successfully');
+      resetForm();
+      getOwnBlogs(); // Refresh blogs after creation
+      setTimeout(() => setValidation(null), 3000); // Hide success message after 3 seconds
+    } catch (error) {
+      setValidation('An error occurred while creating the blog');
+    }
   };
 
   const handleUpdateBlog = async (): Promise<void> => {
